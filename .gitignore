@@ -23,6 +23,8 @@ ENV/
 # Local data
 data/raw/*
 data/processed/*
+data/raw/*.csv
+data/processed/*.duckdb
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 *.duckdb
@@ -46,6 +48,7 @@ dbt/logs/
 dbt/profiles.yml
 
 # Power BI
+powerbi/export/*.csv
 *.pbix
 *.pbit
 *.DataModelSchema
