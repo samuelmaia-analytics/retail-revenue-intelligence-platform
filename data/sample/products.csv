@@ -1,0 +1,13 @@
+product_id,product_name,category,unit_price,unit_cost
+PROD-0001,Camiseta Basica,Moda,59.9,24.5
+PROD-0002,Calca Jeans,Moda,149.9,72.0
+PROD-0003,Tenis Casual,Calcados,229.9,118.0
+PROD-0004,Sandalia Urbana,Calcados,99.9,43.0
+PROD-0005,Smart Speaker,Eletronicos,349.9,221.0
+PROD-0006,Fone Bluetooth,Eletronicos,189.9,91.0
+PROD-0007,Cafeteira Inox,Casa,279.9,154.0
+PROD-0008,Jogo de Panelas,Casa,399.9,238.0
+PROD-0009,Creme Hidratante,Beleza,44.9,17.0
+PROD-0010,Perfume 100ml,Beleza,219.9,93.0
+PROD-0011,Mochila Executiva,Acessorios,179.9,82.0
+PROD-0012,Relogio Digital,Acessorios,259.9,137.0
