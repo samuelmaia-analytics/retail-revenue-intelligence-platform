@@ -134,18 +134,48 @@ Arquivos esperados:
 - `olist_sellers_dataset.csv`
 - `product_category_name_translation.csv`
 
-Os CSVs completos nao sao versionados por causa do tamanho. O workflow de CI usa a
-amostra Olist referencialmente consistente em `data/sample/olist/` quando os
-arquivos completos nao estao disponiveis.
+Os CSVs completos nao sao versionados por causa do tamanho. O projeto inclui uma
+amostra Olist referencialmente consistente com aproximadamente 1.000 pedidos em
+`data/sample/olist/`.
 
-Execute o pipeline completo:
+### Modo full
+
+Com os nove CSVs completos em `data/raw/Brazilian E-commerce/`, execute:
 
 ```bash
-python src/ingestion/load_to_duckdb.py
+python src/ingestion/load_to_duckdb.py --mode full
 python src/transformation/run_staging.py
 python src/transformation/run_marts.py
 python src/transformation/export_powerbi_tables.py
 python src/quality/run_data_tests.py
+```
+
+### Modo sample
+
+Para executar sem baixar o dataset completo:
+
+```bash
+python src/ingestion/load_to_duckdb.py --mode sample
+python src/transformation/run_staging.py
+python src/transformation/run_marts.py
+python src/transformation/export_powerbi_tables.py
+pytest
+```
+
+O modo padrao e `auto`: usa o dataset full quando os nove arquivos existem e faz
+fallback para `data/sample/olist/` quando `data/raw/` nao esta disponivel.
+
+```bash
+python src/ingestion/load_to_duckdb.py
+```
+
+### Regenerar a amostra
+
+Com o dataset full disponivel, gere novamente uma amostra deterministica de 1.000
+pedidos e todas as entidades relacionadas:
+
+```bash
+python src/ingestion/generate_olist_sample.py --orders 1000
 ```
 
 Para executar apenas a camada staging:
@@ -177,10 +207,8 @@ O workflow `.github/workflows/ci.yml` roda em `push` e `pull_request`. Ele insta
 as dependencias, executa Ruff e Black, constroi as camadas `raw`, `staging` e
 `marts`, exporta os CSVs para Power BI e executa pytest.
 
-No GitHub Actions, o dataset completo normalmente nao esta presente. Nesse caso, o
-workflow copia os arquivos de `data/sample/olist/` para a estrutura esperada em
-`data/raw/`. Se a amostra estiver incompleta, o job falha com a lista de arquivos
-ausentes.
+No GitHub Actions, o pipeline executa explicitamente em modo sample e carrega os
+arquivos diretamente de `data/sample/olist/`, sem copiar dados para `data/raw/`.
 
 Banco local gerado:
 
