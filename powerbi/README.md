@@ -38,9 +38,15 @@ parte do dataset Olist nem do modelo principal.
 - `dim_sellers[seller_id]` com `fact_order_items[seller_id]` e
   `fact_seller_performance[seller_id]`.
 - `dim_dates[full_date]` com as colunas de data usadas em cada fato.
-- `fact_orders[order_id]` com `fact_order_items[order_id]`,
-  `fact_payments[order_id]` e `fact_reviews[order_id]`.
 
-Evite relacionamentos muitos-para-muitos entre fatos. Para indicadores globais de
-pedidos, use `fact_orders`; para produto, categoria e seller, use
-`fact_order_items`.
+Evite relacionar fatos diretamente ou criar relacionamentos bidirecionais. Para
+indicadores globais de pedidos, use `fact_orders`; para produto, categoria e seller,
+use `fact_order_items`. `fact_payments` pode permanecer isolada para analises por
+tipo de pagamento ou receber uma dimensao de pedidos dedicada em uma evolucao
+futura.
+
+## Especificacao do Dashboard
+
+- Estrutura das cinco paginas, visuais e filtros:
+  `powerbi/dashboard_specification.md`
+- Medidas oficiais e auxiliares em DAX: `powerbi/dax_measures.md`
