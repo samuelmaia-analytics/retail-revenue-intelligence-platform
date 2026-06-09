@@ -1,0 +1,269 @@
+version: 1
+
+semantic_layer:
+  name: retail_revenue_intelligence
+  description: Simple semantic layer for the Olist-based retail analytics marts.
+  notes:
+    - Product cost is not available in Olist, so real margin metrics are intentionally excluded.
+    - Retention metrics use customer_unique_id instead of customer_id.
+
+metrics:
+  - name: gross_revenue
+    label: Gross Revenue
+    description: Total merchandise value sold, based on item price.
+    formula: SUM(item_price)
+    base_table: marts.fact_order_items
+    grain: order item
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - seller_state
+      - product_category_name_english
+
+  - name: freight_revenue
+    label: Freight Revenue
+    description: Total freight amount charged on order items.
+    formula: SUM(freight_value)
+    base_table: marts.fact_order_items
+    grain: order item
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - seller_state
+      - product_category_name_english
+
+  - name: average_order_value
+    label: Average Order Value
+    description: Average merchandise revenue per distinct order.
+    formula: SUM(gross_revenue) / COUNT(DISTINCT order_id)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+      - order_status
+
+  - name: total_orders
+    label: Total Orders
+    description: Number of distinct orders.
+    formula: COUNT(DISTINCT order_id)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - order_status
+      - customer_state
+      - customer_city
+
+  - name: delivered_orders
+    label: Delivered Orders
+    description: Number of orders with delivered status.
+    formula: COUNT(DISTINCT CASE WHEN is_delivered THEN order_id END)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+
+  - name: cancelled_orders
+    label: Cancelled Orders
+    description: Number of orders with canceled status.
+    formula: COUNT(DISTINCT CASE WHEN is_cancelled THEN order_id END)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+
+  - name: cancellation_rate
+    label: Cancellation Rate
+    description: Share of orders that were canceled.
+    formula: COUNT(DISTINCT CASE WHEN is_cancelled THEN order_id END) / COUNT(DISTINCT order_id)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+
+  - name: late_delivery_rate
+    label: Late Delivery Rate
+    description: Share of delivered orders that arrived after estimated delivery date.
+    formula: COUNT(DISTINCT CASE WHEN is_late_delivery THEN order_id END) / COUNT(DISTINCT CASE WHEN is_delivered THEN order_id END)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+
+  - name: average_delivery_days
+    label: Average Delivery Days
+    description: Average days between purchase date and customer delivery date.
+    formula: AVG(delivery_days)
+    base_table: marts.fact_orders
+    grain: order
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - customer_city
+
+  - name: average_review_score
+    label: Average Review Score
+    description: Average customer review score.
+    formula: AVG(review_score)
+    base_table: marts.fact_reviews
+    grain: review
+    recommended_dimensions:
+      - review_creation_date
+      - order_date
+      - customer_state
+      - is_late_delivery
+
+  - name: review_comment_rate
+    label: Review Comment Rate
+    description: Share of reviews with a title or message.
+    formula: COUNT(CASE WHEN has_review_comment THEN review_id END) / COUNT(review_id)
+    base_table: marts.fact_reviews
+    grain: review
+    recommended_dimensions:
+      - review_creation_date
+      - review_score
+      - customer_state
+      - is_late_delivery
+
+  - name: total_payment_value
+    label: Total Payment Value
+    description: Total customer payment value across all payment records.
+    formula: SUM(payment_value)
+    base_table: marts.fact_payments
+    grain: payment
+    recommended_dimensions:
+      - payment_type
+      - payment_installments
+
+  - name: payment_method_share
+    label: Payment Method Share
+    description: Share of payment value by payment method.
+    formula: SUM(payment_value) / SUM(SUM(payment_value)) OVER ()
+    base_table: marts.fact_payments
+    grain: payment
+    recommended_dimensions:
+      - payment_type
+
+  - name: average_installments
+    label: Average Installments
+    description: Average number of payment installments.
+    formula: AVG(payment_installments)
+    base_table: marts.fact_payments
+    grain: payment
+    recommended_dimensions:
+      - payment_type
+
+  - name: repeat_customers
+    label: Repeat Customers
+    description: Number of unique customers with more than one order.
+    formula: COUNT(CASE WHEN total_orders >= 2 THEN customer_unique_id END)
+    base_table: marts.fact_customer_retention
+    grain: customer_unique_id
+    recommended_dimensions:
+      - customer_segment
+      - first_order_date
+      - last_order_date
+
+  - name: repeat_purchase_rate
+    label: Repeat Purchase Rate
+    description: Share of unique customers with more than one order.
+    formula: COUNT(CASE WHEN total_orders >= 2 THEN customer_unique_id END) / COUNT(customer_unique_id)
+    base_table: marts.fact_customer_retention
+    grain: customer_unique_id
+    recommended_dimensions:
+      - customer_segment
+      - first_order_date
+      - last_order_date
+
+  - name: customer_lifetime_revenue
+    label: Customer Lifetime Revenue
+    description: Merchandise revenue generated by a unique customer within the dataset period.
+    formula: SUM(gross_revenue)
+    base_table: marts.fact_customer_retention
+    grain: customer_unique_id
+    recommended_dimensions:
+      - customer_segment
+      - first_order_date
+      - last_order_date
+
+  - name: days_since_last_purchase
+    label: Days Since Last Purchase
+    description: Days between last order and the dataset maximum order date.
+    formula: AVG(days_since_last_order)
+    base_table: marts.fact_customer_retention
+    grain: customer_unique_id
+    recommended_dimensions:
+      - customer_segment
+      - last_order_date
+
+  - name: seller_gross_revenue
+    label: Seller Gross Revenue
+    description: Gross merchandise revenue generated by sellers.
+    formula: SUM(gross_revenue)
+    base_table: marts.fact_seller_performance
+    grain: seller
+    recommended_dimensions:
+      - seller_id
+      - seller_state
+
+  - name: seller_late_delivery_rate
+    label: Seller Late Delivery Rate
+    description: Share of seller orders delivered after estimated delivery date.
+    formula: SUM(late_deliveries) / SUM(total_orders)
+    base_table: marts.fact_seller_performance
+    grain: seller
+    recommended_dimensions:
+      - seller_id
+      - seller_state
+
+  - name: seller_average_review_score
+    label: Seller Average Review Score
+    description: Average review score associated with seller orders.
+    formula: AVG(average_review_score)
+    base_table: marts.fact_seller_performance
+    grain: seller
+    recommended_dimensions:
+      - seller_id
+      - seller_state
+
+  - name: revenue_by_product_category
+    label: Revenue by Product Category
+    description: Gross revenue grouped by translated product category.
+    formula: SUM(gross_revenue)
+    base_table: marts.fact_revenue_daily
+    grain: day, customer state, product category
+    recommended_dimensions:
+      - order_date
+      - customer_state
+      - product_category_name_english
+
+  - name: revenue_by_state
+    label: Revenue by State
+    description: Gross revenue grouped by customer state.
+    formula: SUM(gross_revenue)
+    base_table: marts.fact_revenue_daily
+    grain: day, customer state, product category
+    recommended_dimensions:
+      - order_date
+      - customer_state
+
+  - name: revenue_by_seller_state
+    label: Revenue by Seller State
+    description: Gross revenue grouped by seller state.
+    formula: SUM(item_price)
+    base_table: marts.fact_order_items
+    grain: order item
+    recommended_dimensions:
+      - order_date
+      - seller_state
+      - product_category_name_english
