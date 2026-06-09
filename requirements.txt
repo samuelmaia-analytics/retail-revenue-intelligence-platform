@@ -1,0 +1,30 @@
+# Local analytics engine
+duckdb
+
+# Data manipulation and file formats
+pandas
+polars
+pyarrow
+numpy
+
+# Synthetic data and validation
+faker
+pydantic
+
+# dbt with DuckDB adapter
+dbt-core
+dbt-duckdb
+
+# Notebooks
+jupyter
+ipykernel
+
+# Testing and code quality
+pytest
+pytest-cov
+black
+ruff
+
+# Developer utilities
+python-dotenv
+rich
