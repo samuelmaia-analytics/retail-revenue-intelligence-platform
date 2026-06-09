@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "retail.duckdb"
 EXPORT_DIR = PROJECT_ROOT / "powerbi" / "export"
@@ -35,16 +34,11 @@ MART_TABLES = [
 
 
 def validate_mart_tables(connection: Any) -> None:
-    existing_tables = {
-        row[0]
-        for row in connection.execute(
-            """
+    existing_tables = {row[0] for row in connection.execute("""
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'marts'
-            """
-        ).fetchall()
-    }
+            """).fetchall()}
     missing_tables = [table_name for table_name in MART_TABLES if table_name not in existing_tables]
 
     if missing_tables:

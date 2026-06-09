@@ -8,7 +8,6 @@ from pathlib import Path
 import duckdb
 import pytest
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "retail.duckdb"
 
@@ -40,9 +39,9 @@ EXPECTED_MART_TABLES = [
 
 @pytest.fixture(scope="session")
 def connection() -> Generator[duckdb.DuckDBPyConnection, None, None]:
-    assert DATABASE_PATH.exists(), (
-        f"DuckDB database not found at {DATABASE_PATH}. Run the pipeline before pytest."
-    )
+    assert (
+        DATABASE_PATH.exists()
+    ), f"DuckDB database not found at {DATABASE_PATH}. Run the pipeline before pytest."
 
     database = duckdb.connect(str(DATABASE_PATH), read_only=True)
     try:
@@ -247,16 +246,14 @@ def test_staging_orders_status_is_valid(
 def test_staging_orders_is_late_delivery_is_boolean(
     connection: duckdb.DuckDBPyConnection,
 ) -> None:
-    data_type = connection.execute(
-        """
+    data_type = connection.execute("""
         SELECT data_type
         FROM information_schema.columns
         WHERE
             table_schema = 'staging'
             AND table_name = 'stg_orders'
             AND column_name = 'is_late_delivery'
-        """
-    ).fetchone()
+        """).fetchone()
 
     assert data_type is not None, "staging.stg_orders.is_late_delivery does not exist"
     assert data_type[0] == "BOOLEAN"

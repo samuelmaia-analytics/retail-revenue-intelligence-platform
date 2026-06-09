@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 OLIST_DIR = RAW_DIR / "Brazilian E-commerce"
@@ -126,25 +125,21 @@ def load_olist_raw_tables(connection: Any) -> dict[str, int]:
             [str(csv_path)],
         )
 
-    connection.execute(
-        """
+    connection.execute("""
         DROP TABLE IF EXISTS raw.category_translation;
         DROP TABLE IF EXISTS raw.marketing_campaigns;
         DROP TABLE IF EXISTS raw.order_campaigns;
         DROP TABLE IF EXISTS raw.shipments;
-        """
-    )
+        """)
 
     for raw_table in OLIST_RAW_TABLES:
-        missing_primary_keys = connection.execute(
-            f"""
+        missing_primary_keys = connection.execute(f"""
             SELECT COUNT(*)
             FROM raw.{raw_table.table_name}
             WHERE
                 {raw_table.primary_key} IS NULL
                 OR TRIM(CAST({raw_table.primary_key} AS VARCHAR)) = ''
-            """
-        ).fetchone()[0]
+            """).fetchone()[0]
 
         if missing_primary_keys > 0:
             raise ValueError(

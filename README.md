@@ -58,7 +58,7 @@ retail-revenue-intelligence-platform/
 |-- powerbi/                 # Documentacao e exports para Power BI
 |-- docs/                    # Arquitetura, negocio, dicionario e metricas
 |-- tests/                   # Testes Python futuros
-`-- .github/workflows/       # CI futuro
+`-- .github/workflows/       # Integracao continua
 ```
 
 ## Camadas Analiticas
@@ -107,6 +107,31 @@ Instale as dependencias:
 pip install -r requirements.txt
 ```
 
+### Baixar o dataset Olist
+
+Baixe manualmente no Kaggle o **Brazilian E-Commerce Public Dataset by Olist**,
+extraia os arquivos e coloque os nove CSVs em:
+
+```text
+data/raw/Brazilian E-commerce/
+```
+
+Arquivos esperados:
+
+- `olist_customers_dataset.csv`
+- `olist_geolocation_dataset.csv`
+- `olist_orders_dataset.csv`
+- `olist_order_items_dataset.csv`
+- `olist_order_payments_dataset.csv`
+- `olist_order_reviews_dataset.csv`
+- `olist_products_dataset.csv`
+- `olist_sellers_dataset.csv`
+- `product_category_name_translation.csv`
+
+Os CSVs completos nao sao versionados por causa do tamanho. O workflow de CI usa a
+amostra Olist referencialmente consistente em `data/sample/olist/` quando os
+arquivos completos nao estao disponiveis.
+
 Execute o pipeline completo:
 
 ```bash
@@ -139,6 +164,17 @@ pytest
 
 Os testes usam o banco `data/processed/retail.duckdb`, portanto o pipeline deve ser
 executado antes da suite.
+
+## Integracao Continua
+
+O workflow `.github/workflows/ci.yml` roda em `push` e `pull_request`. Ele instala
+as dependencias, executa Ruff e Black, constroi as camadas `raw`, `staging` e
+`marts`, exporta os CSVs para Power BI e executa pytest.
+
+No GitHub Actions, o dataset completo normalmente nao esta presente. Nesse caso, o
+workflow copia os arquivos de `data/sample/olist/` para a estrutura esperada em
+`data/raw/`. Se a amostra estiver incompleta, o job falha com a lista de arquivos
+ausentes.
 
 Banco local gerado:
 
