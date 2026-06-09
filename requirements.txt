@@ -22,8 +22,8 @@ ipykernel
 # Testing and code quality
 pytest
 pytest-cov
-black
-ruff
+black==26.5.1
+ruff==0.15.16
 
 # Developer utilities
 python-dotenv
