@@ -113,7 +113,7 @@ Execute o pipeline completo:
 python src/ingestion/load_to_duckdb.py
 python src/transformation/run_staging.py
 python src/transformation/run_marts.py
-python src/transformation/export_powerbi.py
+python src/transformation/export_powerbi_tables.py
 python src/quality/run_data_tests.py
 ```
 
@@ -149,7 +149,7 @@ data/processed/retail.duckdb
 Exports para Power BI:
 
 ```text
-powerbi/exports/
+powerbi/export/
 ```
 
 ## Future Improvements
