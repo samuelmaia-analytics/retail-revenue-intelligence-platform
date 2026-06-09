@@ -1,30 +1,8 @@
-# Local analytics engine
-duckdb
-
-# Data manipulation and file formats
-pandas
-polars
-pyarrow
-numpy
-
-# Synthetic data and validation
-faker
-pydantic
-
-# dbt with DuckDB adapter
-dbt-core
-dbt-duckdb
-
-# Notebooks
-jupyter
-ipykernel
+# Pipeline runtime
+duckdb==1.5.3
 
 # Testing and code quality
-pytest
-pytest-cov
+pytest==9.0.3
+pytest-cov==7.0.0
 black==26.5.1
 ruff==0.15.16
-
-# Developer utilities
-python-dotenv
-rich

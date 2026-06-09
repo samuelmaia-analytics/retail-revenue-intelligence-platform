@@ -107,6 +107,12 @@ Instale as dependencias:
 pip install -r requirements.txt
 ```
 
+Para instalar tambem bibliotecas opcionais de notebooks, dbt e exploracao:
+
+```bash
+pip install -r requirements-optional.txt
+```
+
 ### Baixar o dataset Olist
 
 Baixe manualmente no Kaggle o **Brazilian E-Commerce Public Dataset by Olist**,

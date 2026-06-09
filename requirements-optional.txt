@@ -1,0 +1,23 @@
+-r requirements.txt
+
+# Data manipulation and file formats
+pandas
+polars
+pyarrow
+numpy
+
+# Synthetic data and validation
+faker
+pydantic
+
+# dbt with DuckDB adapter
+dbt-core
+dbt-duckdb
+
+# Notebooks
+jupyter
+ipykernel
+
+# Developer utilities
+python-dotenv
+rich
