@@ -131,6 +131,15 @@ python src/transformation/run_marts.py
 
 Esse comando requer que a ingestao e a camada staging ja tenham sido executadas.
 
+Para executar os testes automatizados de qualidade de dados:
+
+```bash
+pytest
+```
+
+Os testes usam o banco `data/processed/retail.duckdb`, portanto o pipeline deve ser
+executado antes da suite.
+
 Banco local gerado:
 
 ```text
