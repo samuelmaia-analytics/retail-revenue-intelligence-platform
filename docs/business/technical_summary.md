@@ -24,9 +24,15 @@ arquivos CSV publicos e anonimizados sobre:
 - avaliacoes;
 - eventos e previsoes de entrega.
 
-Os arquivos de origem nao sao versionados no Git. O pipeline espera os CSVs em
-`data/raw/Brazilian E-commerce/` e materializa o banco local em
-`data/processed/retail.duckdb`.
+Os arquivos completos nao sao versionados no Git. O pipeline aceita tres modos de
+carga:
+
+- `full`, usando os nove CSVs em `data/raw/Brazilian E-commerce/`;
+- `sample`, usando a amostra referencialmente consistente versionada em
+  `data/sample/olist/`;
+- `auto`, usando o dataset completo quando disponivel e a amostra como fallback.
+
+O resultado e materializado em `data/processed/retail.duckdb`.
 
 ## Arquitetura
 
@@ -48,6 +54,7 @@ O schema `raw` preserva as entidades da fonte com pouca interferencia. A ingesta
 executada por `src/ingestion/load_to_duckdb.py`, que:
 
 - verifica a disponibilidade dos arquivos esperados;
+- seleciona explicitamente a fonte `full`, `sample` ou `auto`;
 - cria ou substitui as tabelas da fonte;
 - valida chaves obrigatorias;
 - registra a quantidade de linhas carregadas.
@@ -87,7 +94,8 @@ existencia dos marts, escreve em arquivo temporario e substitui o destino soment
 apos a exportacao ser concluida.
 
 A pasta `powerbi/` tambem documenta relacionamentos, cinco paginas de dashboard e
-medidas DAX sugeridas.
+medidas DAX sugeridas. O dashboard cobre visao executiva, receita e produtos,
+entrega e operacoes, clientes e retencao, sellers e reviews.
 
 ## Uso de DuckDB
 
@@ -155,6 +163,11 @@ granularidade e riscos de interpretacao para metricas como:
 As definicoes diferenciam valor dos itens, frete e pagamentos. Tambem registram
 cuidados contra dupla contagem ao combinar fatos com grains diferentes.
 
+As consultas em `sql/analysis/` materializam perguntas de negocio reutilizaveis,
+incluindo resumo executivo, receita por mes, UF e categoria, pagamentos,
+parcelamento, entrega, reviews, retencao, produtos e sellers. As medidas de
+apresentacao para Power BI estao documentadas em `powerbi/dax_measures.md`.
+
 ## Testes de Qualidade
 
 A suite `tests/test_data_quality.py` utiliza pytest e DuckDB em modo somente leitura.
@@ -170,7 +183,9 @@ Ela cobre:
 - existencia de todas as dimensoes e fatos esperados.
 
 O projeto mantem tambem `src/quality/run_data_tests.py` como verificador executavel
-do pipeline. Os testes nao incluem entidades de campanhas.
+do pipeline. O workflow `.github/workflows/ci.yml` executa formatacao, constroi o
+pipeline com a amostra Olist, exporta as tabelas e roda pytest em `push` e
+`pull_request`. Os testes nao incluem entidades de campanhas.
 
 ## Exportacao e Consumo
 
@@ -205,8 +220,13 @@ metricas.
   seller e pedido.
 - **CSV como contrato com Power BI:** simplifica a demonstracao local e desacopla o
   dashboard do arquivo DuckDB.
+- **Amostra deterministica para CI:** permite validar o pipeline sem distribuir o
+  dataset completo e preserva os relacionamentos entre as entidades selecionadas.
+- **Consultas analiticas separadas dos marts:** `sql/analysis/` responde perguntas
+  de negocio sem alterar o contrato dimensional consumido por outros artefatos.
 - **Artefatos gerados fora do Git:** CSVs brutos, banco DuckDB, exports e arquivos
-  Power BI nao sao versionados.
+  Power BI nao sao versionados; somente a amostra Olist controlada faz parte do
+  repositorio.
 
 ## Limitacoes Conhecidas
 
@@ -227,15 +247,17 @@ metricas.
 
 ## Melhorias Futuras
 
-- Adicionar CI para executar pytest e validacoes de estilo a cada alteracao.
 - Implementar carga incremental e controle de execucoes.
 - Adicionar observabilidade, logs estruturados e historico de qualidade.
 - Evoluir para dbt ou outra ferramenta de transformacao com lineage e testes
   declarativos.
+- Adicionar testes automatizados para as queries de `sql/analysis/` e para o
+  contrato de colunas exportado ao Power BI.
 - Criar dimensoes ou tabelas ponte para cenarios mais complexos no Power BI.
 - Enriquecer cidades e UFs com dados publicos socioeconomicos e geograficos.
 - Adicionar custos externos ou simulados, claramente identificados, para estimar
   margem.
-- Avaliar campanhas simuladas em uma extensao separada do modelo oficial.
+- Avaliar campanhas simuladas somente em uma extensao separada e claramente
+  identificada, sem mistura com o modelo oficial Olist.
 - Automatizar publicacao e atualizacao do dashboard quando houver infraestrutura
   apropriada.

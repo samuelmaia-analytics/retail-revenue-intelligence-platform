@@ -13,24 +13,28 @@ para usar ponto e virgula, substitua os separadores conforme a configuracao regi
 
 ### Gross Revenue
 
-Usa o fato de itens para responder corretamente a filtros de produto, categoria,
-seller, data e cliente.
+Usa o fato no nivel de pedido para os totais executivos e filtros de status,
+entrega, cancelamento, data e cliente.
 
 ```DAX
 Gross Revenue =
-SUM ( fact_order_items[item_price] )
+SUM ( fact_orders[gross_revenue] )
 ```
 
 Formato: moeda BRL.
+
+Para visuais por produto, categoria ou seller, use `[Product Gross Revenue]`.
 
 ### Freight Value
 
 ```DAX
 Freight Value =
-SUM ( fact_order_items[freight_value] )
+SUM ( fact_orders[freight_value] )
 ```
 
 Formato: moeda BRL.
+
+Para visuais por produto, categoria ou seller, use `[Product Freight Value]`.
 
 ### Total Payment Value
 
@@ -204,6 +208,20 @@ Formato: numero decimal.
 
 Estas medidas complementam os visuais especificados para as cinco paginas.
 
+### Product Gross Revenue
+
+```DAX
+Product Gross Revenue =
+SUM ( fact_order_items[item_price] )
+```
+
+### Product Freight Value
+
+```DAX
+Product Freight Value =
+SUM ( fact_order_items[freight_value] )
+```
+
 ### Items Sold
 
 ```DAX
@@ -222,7 +240,7 @@ DISTINCTCOUNT ( fact_order_items[order_id] )
 
 ```DAX
 Category Average Order Value =
-DIVIDE ( [Gross Revenue], [Item Fact Orders] )
+DIVIDE ( [Product Gross Revenue], [Item Fact Orders] )
 ```
 
 ### Average Item Price
@@ -236,17 +254,23 @@ AVERAGE ( fact_order_items[item_price] )
 
 ```DAX
 Freight to Revenue Rate =
-DIVIDE ( [Freight Value], [Gross Revenue] )
+DIVIDE ( [Product Freight Value], [Product Gross Revenue] )
 ```
 
 ### Average Freight per Order
 
 ```DAX
 Average Freight per Order =
-DIVIDE (
-    SUM ( fact_orders[freight_value] ),
-    [Total Orders]
-)
+DIVIDE ( [Freight Value], [Total Orders] )
+```
+
+### Orders by Status
+
+Use esta medida em um visual cujo eixo seja `fact_orders[order_status]`.
+
+```DAX
+Orders by Status =
+[Total Orders]
 ```
 
 ### Customer Lifetime Revenue
@@ -270,6 +294,15 @@ AVERAGE ( fact_customer_retention[days_since_last_order] )
 ```DAX
 Average Orders per Customer =
 AVERAGE ( fact_customer_retention[total_orders] )
+```
+
+### Customers in Order Distribution
+
+Use `fact_customer_retention[total_orders]` ou uma coluna de faixas no eixo.
+
+```DAX
+Customers in Order Distribution =
+DISTINCTCOUNT ( fact_customer_retention[customer_unique_id] )
 ```
 
 ### Seller Gross Revenue
@@ -326,13 +359,22 @@ AVERAGEX (
 A avaliacao pertence ao pedido e e associada aos sellers participantes; nao e uma
 avaliacao individual do seller.
 
+### Seller State Revenue
+
+Use esta medida com `dim_sellers[seller_state]` no eixo.
+
+```DAX
+Seller State Revenue =
+[Seller Gross Revenue]
+```
+
 ## Observacoes de Escopo
 
 - Nao calcular margem real. O dataset Olist nao possui custo do produto, portanto
   margem bruta, margem liquida e rentabilidade exigiriam uma simulacao ou fonte
   externa claramente documentada.
-- Nao calcular ROI de campanha. O dataset Olist nao possui campanhas, investimento
-  em midia ou atribuicao.
+- Nao calcular retorno sobre investimento em marketing. O dataset Olist nao possui
+  campanhas, investimento em midia ou atribuicao.
 - `payment_value` pode ter varios registros por pedido. Nao conte linhas de
   `fact_payments` como pedidos.
 - Medidas de retencao usam `customer_unique_id`.

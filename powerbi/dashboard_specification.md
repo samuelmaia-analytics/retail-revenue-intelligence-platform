@@ -20,7 +20,8 @@ campanhas, investimento em midia ou atribuicao.
 
 ## Modelo Recomendado
 
-Use relacionamentos `1:*`, com direcao de filtro simples da dimensao para o fato:
+Use direcao de filtro simples da dimensao para o fato. Os relacionamentos
+transacionais sao `1:*`; o relacionamento com o snapshot de sellers e `1:1`:
 
 - `dim_dates[full_date]` -> `fact_orders[order_date]`
 - `dim_dates[full_date]` -> `fact_order_items[order_date]`
@@ -29,7 +30,7 @@ Use relacionamentos `1:*`, com direcao de filtro simples da dimensao para o fato
 - `dim_customers[customer_id]` -> `fact_order_items[customer_id]`
 - `dim_products[product_id]` -> `fact_order_items[product_id]`
 - `dim_sellers[seller_id]` -> `fact_order_items[seller_id]`
-- `dim_sellers[seller_id]` -> `fact_seller_performance[seller_id]`
+- `dim_sellers[seller_id]` -> `fact_seller_performance[seller_id]` (`1:1`)
 
 Marque `dim_dates` como tabela de datas usando `full_date`. Classifique
 `dim_dates[month_name]` por `dim_dates[month]`.
@@ -83,6 +84,10 @@ comercial, volume de pedidos, entrega e satisfacao do cliente.
 - Grafico de colunas empilhadas com pedidos entregues e cancelados por mes.
 - Tooltip de pagina com pedidos, ticket medio e taxa de atraso da UF selecionada.
 
+Para os cartoes e totais globais, use medidas baseadas em `fact_orders`. Para
+analises por produto, categoria ou seller, use as medidas no grain de
+`fact_order_items`.
+
 ### Filtros recomendados
 
 - Periodo por `dim_dates[full_date]`.
@@ -133,12 +138,14 @@ peso do frete e o volume de itens vendidos.
 
 ### Visuais recomendados
 
-- Barras horizontais com Gross Revenue por categoria.
-- Tabela ou matriz de top produtos por Gross Revenue, itens e pedidos.
-- Grafico combinado com Gross Revenue e Freight Value por categoria.
-- Mapa ou barras com Gross Revenue por UF do cliente.
+- Barras horizontais com Product Gross Revenue por categoria.
+- Tabela ou matriz de top produtos por Product Gross Revenue, itens e pedidos.
+- Grafico combinado com Product Gross Revenue e Product Freight Value por
+  categoria.
+- Mapa ou barras com Product Gross Revenue por UF do cliente.
 - Treemap para participacao de receita por categoria.
-- Grafico de dispersao com Gross Revenue, Freight Value e itens por categoria.
+- Grafico de dispersao com Product Gross Revenue, Product Freight Value e itens
+  por categoria.
 
 ### Filtros recomendados
 
@@ -150,8 +157,8 @@ peso do frete e o volume de itens vendidos.
 
 ### Medidas DAX sugeridas
 
-- `[Gross Revenue]`
-- `[Freight Value]`
+- `[Product Gross Revenue]`
+- `[Product Freight Value]`
 - `[Items Sold]`
 - `[Item Fact Orders]`
 - `[Category Average Order Value]`
@@ -192,6 +199,7 @@ relacao com a experiencia do cliente.
 - Cancelled Orders
 - Cancellation Rate
 - Average Freight per Order
+- Orders by Status
 
 ### Visuais recomendados
 
@@ -219,6 +227,7 @@ relacao com a experiencia do cliente.
 - `[Cancellation Rate]`
 - `[Average Review Score]`
 - `[Average Freight per Order]`
+- `[Orders by Status]`
 
 ### Insights esperados
 
@@ -249,6 +258,7 @@ clientes usando `customer_unique_id`.
 - Customer Lifetime Revenue
 - Average Days Since Last Purchase
 - Average Orders per Customer
+- Customer Order Distribution
 
 ### Visuais recomendados
 
@@ -275,6 +285,7 @@ clientes usando `customer_unique_id`.
 - `[Customer Lifetime Revenue]`
 - `[Average Days Since Last Purchase]`
 - `[Average Orders per Customer]`
+- `[Customers in Order Distribution]`
 
 ### Insights esperados
 
@@ -308,6 +319,7 @@ Comparar desempenho comercial, escala, atrasos e avaliacao dos sellers.
 - Seller Late Delivery Rate
 - Seller Average Review Score
 - Seller Items Sold
+- Seller State Revenue
 
 ### Visuais recomendados
 
@@ -337,6 +349,7 @@ Comparar desempenho comercial, escala, atrasos e avaliacao dos sellers.
 - `[Seller Late Deliveries]`
 - `[Seller Late Delivery Rate]`
 - `[Seller Average Review Score]`
+- `[Seller State Revenue]`
 
 ### Insights esperados
 
@@ -354,6 +367,6 @@ com essa limitacao.
 
 - Margem real nao deve ser calculada porque o dataset Olist nao possui custo do
   produto.
-- ROI de campanha nao deve ser calculado porque o dataset nao possui campanhas,
-  investimento ou atribuicao.
+- Retorno sobre investimento em marketing nao deve ser calculado porque o dataset
+  nao possui campanhas, investimento ou atribuicao.
 - Nao criar pagina, filtro ou KPI de campanhas de marketing.
