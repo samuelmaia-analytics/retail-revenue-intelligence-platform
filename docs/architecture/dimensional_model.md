@@ -21,9 +21,8 @@ avaliacoes. Por exemplo, `fact_orders` possui uma linha por pedido, enquanto
 `fact_order_items` possui uma linha por item do pedido.
 
 O dataset Olist nao possui dados de campanhas de marketing, investimento em midia,
-atribuicao ou canal de aquisicao. Consequentemente, campanhas nao fazem parte do
-escopo principal e o modelo nao cria `dim_campaigns`, `fact_campaigns` ou metricas
-artificiais de campanha.
+atribuicao ou canal de aquisicao. Consequentemente, campanhas e metricas artificiais
+de campanha nao fazem parte do escopo principal.
 
 ## Camadas de Dados
 
@@ -423,8 +422,9 @@ oferece dados de campanha, investimento, impressoes, cliques, canal de aquisicao
 atribuicao de pedidos.
 
 Criar tabelas vazias ou inferir essas informacoes reduziria a confiabilidade do
-projeto. Por esse motivo, ROI de campanha, CAC, conversao por canal e metricas
-equivalentes nao sao apresentados como resultados reais da Olist.
+projeto. Por esse motivo, retorno sobre investimento em marketing, CAC, conversao
+por canal e metricas equivalentes nao sao apresentados como resultados reais da
+Olist.
 
 ## Future Improvements
 

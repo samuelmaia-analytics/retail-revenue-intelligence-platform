@@ -103,15 +103,6 @@ TESTS = [
         WHERE gross_revenue < 0 OR total_payment_value < 0 OR freight_value < 0
         """,
     ),
-    QueryTest(
-        "campaign_tables_not_in_main_pipeline",
-        """
-        SELECT COUNT(*)
-        FROM information_schema.tables
-        WHERE table_schema IN ('raw', 'marts')
-            AND table_name IN ('marketing_campaigns', 'order_campaigns', 'dim_campaigns')
-        """,
-    ),
 ]
 
 

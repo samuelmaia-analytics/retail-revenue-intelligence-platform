@@ -102,8 +102,6 @@ def load_olist_raw_tables(connection: Any, source_dir: Path) -> dict[str, int]:
 
     connection.execute("""
         DROP TABLE IF EXISTS raw.category_translation;
-        DROP TABLE IF EXISTS raw.marketing_campaigns;
-        DROP TABLE IF EXISTS raw.order_campaigns;
         DROP TABLE IF EXISTS raw.shipments;
         """)
 
