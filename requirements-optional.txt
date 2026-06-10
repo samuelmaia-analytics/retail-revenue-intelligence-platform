@@ -1,7 +1,6 @@
 -r requirements.txt
 
 # Data manipulation and file formats
-pandas
 polars
 pyarrow
 numpy

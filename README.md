@@ -1,229 +1,450 @@
 # Retail Revenue Intelligence Platform
 
-Projeto de portfolio em Analytics Engineering para uma operacao brasileira de e-commerce, usando o dataset publico da Olist como fonte principal e DuckDB como banco analitico local.
+Projeto de portfolio de **Data Analytics, Business Intelligence e Analytics
+Engineering** desenvolvido por **Samuel Maia - Data Analyst / Analytics Engineer**.
 
-O objetivo e demonstrar uma rotina profissional de dados: ingestao local, staging, modelagem dimensional, testes de qualidade, documentacao de metricas e exportacao para Power BI. O projeto roda localmente, sem credenciais e sem servicos pagos.
+## Resumo Executivo
 
-## Dataset
+O Retail Revenue Intelligence Platform transforma dados publicos de e-commerce em
+uma base analitica local, testada e preparada para consumo no Power BI. O projeto
+demonstra um fluxo completo de dados: ingestao de CSVs, padronizacao, modelagem
+dimensional, documentacao de metricas, testes automatizados, consultas analiticas e
+exportacao para dashboard.
 
-O dataset Olist cobre dados reais anonimizados de e-commerce brasileiro:
+A solucao usa o **Brazilian E-Commerce Public Dataset by Olist** apenas como fonte
+publica de estudo. Este e um projeto independente de portfolio: nao foi desenvolvido para a
+Olist, nao representa sua operacao atual e nao declara impacto comercial real.
 
-- Pedidos
-- Clientes
-- Produtos
-- Vendedores
-- Pagamentos
-- Avaliacoes
-- Localizacao
-- Traducao de categorias de produto
+## Entregaveis
 
-O dataset nao possui dados reais de campanhas de marketing. Por isso, campanhas ficam fora do escopo principal do pipeline para evitar tabelas vazias ou analises artificiais.
+- Pipeline reproduzivel em Python e SQL, com modos `full`, `sample` e `auto`.
+- Banco analitico DuckDB organizado em `raw`, `staging` e `marts`.
+- Modelo dimensional com quatro dimensoes e sete fatos.
+- 15 queries analiticas para receita, operacao, clientes, pagamentos e sellers.
+- Suite de qualidade de dados executada por pytest e GitHub Actions.
+- Exportacao das tabelas finais para CSV em formato compativel com Power BI.
+- Especificacao de dashboard com cinco paginas e catalogo de medidas DAX.
+- Documentacao de arquitetura, metricas, perguntas de negocio e limitacoes.
+
+## Aderencia Profissional
+
+- **Analista de Dados:** perguntas de negocio, SQL analitico, metricas, investigacao
+  de receita, clientes, pagamentos, reviews e entregas.
+- **BI Analyst:** modelo dimensional, especificacao de dashboard, medidas DAX,
+  relacionamentos e consumo no Power BI.
+- **Analytics Engineer:** pipeline em camadas, grains explicitos, testes de dados,
+  CI, documentacao e contratos de exportacao.
+
+O repositorio demonstra competencias aplicadas a um projeto de portfolio. Ele nao
+substitui experiencia em uma operacao produtiva nem afirma resultados de negocio
+obtidos em uma empresa.
+
+## Execucao Rapida
+
+O modo sample usa os arquivos versionados e nao exige download do Kaggle:
+
+```bash
+git clone https://github.com/samuelmaia-analytics/retail-revenue-intelligence-platform.git
+cd retail-revenue-intelligence-platform
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python src/ingestion/load_to_duckdb.py --mode sample
+python src/transformation/run_staging.py
+python src/transformation/run_marts.py
+python src/transformation/export_powerbi_tables.py
+python -m pytest
+```
+
+O exemplo acima usa Windows PowerShell. Os comandos de ativacao para Linux e macOS
+estao na secao [Como Rodar Localmente](#como-rodar-localmente).
 
 ## Problema de Negocio
 
-Uma operacao de e-commerce precisa acompanhar crescimento de receita, rentabilidade, experiencia do cliente e eficiencia operacional. A plataforma organiza os dados em uma base analitica confiavel para responder perguntas como:
+Uma operacao de marketplace precisa combinar informacoes comerciais, logisticas e
+de experiencia do cliente para responder perguntas como:
 
-- Qual e a receita por categoria, UF, canal e periodo?
-- Quais produtos e categorias concentram maior volume de vendas?
-- Onde existem atrasos de entrega afetando a experiencia do cliente?
-- Quais clientes compram mais de uma vez e quais estao em risco de churn?
-- Como pagamentos, avaliacoes e operacao se conectam aos resultados comerciais?
+- Como receita, pedidos e ticket medio evoluem ao longo do tempo?
+- Quais categorias, produtos, estados e sellers concentram receita?
+- Onde atrasos e cancelamentos apresentam maior incidencia?
+- Qual e a relacao entre prazo de entrega e avaliacao do cliente?
+- Quantos clientes voltam a comprar e quais segmentos concentram valor?
+- Como meios de pagamento, parcelamento e frete se distribuem na operacao?
 
-## Stack
+O projeto organiza essas perguntas em marts dimensionais, queries SQL documentadas e
+uma especificacao de dashboard com cinco paginas.
 
-- Python para orquestracao local e scripts utilitarios.
-- DuckDB como banco analitico local.
-- SQL para staging e marts dimensionais.
-- pytest, ruff e black para qualidade de codigo.
-- Power BI Desktop para visualizacao.
-- Markdown para documentacao de arquitetura, negocio, dicionario de dados e metricas.
+## Fonte de Dados
 
-## Estrutura do Projeto
+A fonte e o **Brazilian E-Commerce Public Dataset by Olist**, disponibilizado
+publicamente no Kaggle. Os arquivos sao anonimizados e incluem:
+
+- pedidos;
+- itens de pedidos;
+- clientes;
+- produtos e traducao de categorias;
+- sellers;
+- pagamentos;
+- reviews;
+- geolocalizacao.
+
+O dataset completo nao e versionado neste repositorio. Uma amostra
+referencialmente consistente com aproximadamente 1.000 pedidos fica em
+`data/sample/olist/` para testes locais e integracao continua.
+
+## Arquitetura
 
 ```text
-retail-revenue-intelligence-platform/
-|-- data/
-|   |-- raw/                 # Dataset Olist local, nao versionado
-|   |-- processed/           # Banco DuckDB local
-|   `-- sample/              # Pequenas amostras versionaveis
-|-- notebooks/               # Exploracao e prototipacao
-|-- src/
-|   |-- ingestion/           # Carga de CSVs para DuckDB
-|   |-- transformation/      # Execucao de staging, marts e exports
-|   |-- quality/             # Testes de qualidade de dados
-|   `-- utils/               # Funcoes compartilhadas
-|-- sql/
-|   |-- staging/             # Padronizacao das fontes raw
-|   `-- marts/               # Modelo dimensional para BI
-|-- powerbi/                 # Documentacao e exports para Power BI
-|-- docs/                    # Arquitetura, negocio, dicionario e metricas
-|-- tests/                   # Testes Python futuros
-`-- .github/workflows/       # Integracao continua
+Olist CSVs
+    |
+    v
+Python ingestion
+    |
+    v
+DuckDB: raw
+    |
+    v
+DuckDB: staging (SQL)
+    |
+    v
+DuckDB: marts (SQL)
+    |
+    +--> SQL analytical queries
+    |
+    +--> UTF-8 CSV exports
+              |
+              v
+           Power BI
 ```
 
-## Camadas Analiticas
+- **Raw:** preserva as entidades recebidas da fonte.
+- **Staging:** aplica tipagem, limpeza e padronizacao.
+- **Marts:** materializa dimensoes, fatos e agregados de negocio.
+- **Analysis:** disponibiliza queries SQL para perguntas recorrentes.
+- **Power BI:** consome CSVs exportados a partir do schema `marts`.
 
-- Raw: arquivos Olist carregados no schema `raw`, preservando as entidades originais do dataset.
-- Staging: limpeza tecnica, tipos de dados e nomes padronizados no schema `staging`.
-- Marts: tabelas dimensionais e fatos no schema `marts`.
-- Power BI: exports locais em CSV a partir das tabelas marts.
+O banco local e criado em `data/processed/retail.duckdb`.
+
+## Stack Tecnica
+
+- **Python 3.11+** para ingestao, execucao do pipeline e exportacao.
+- **DuckDB** como banco analitico local.
+- **SQL** para staging, modelagem dimensional e analises.
+- **Power BI** para visualizacao e camada semantica em DAX.
+- **pytest** para testes automatizados de dados.
+- **Ruff** e **Black** para qualidade e formatacao de codigo.
+- **GitHub Actions** para integracao continua.
+- **Markdown** para documentacao tecnica e de negocio.
+
+## Estrutura do Repositorio
+
+```text
+.
+|-- .github/workflows/       # Pipeline de integracao continua
+|-- data/
+|   |-- raw/                 # Dataset completo local, fora do Git
+|   |-- processed/           # Banco DuckDB gerado
+|   `-- sample/olist/        # Amostra Olist versionada
+|-- docs/
+|   |-- architecture/        # Arquitetura e modelo dimensional
+|   |-- business/            # Contexto e perguntas de negocio
+|   |-- data_dictionary/     # Dicionario de dados
+|   `-- metrics/             # Definicoes de metricas
+|-- powerbi/
+|   |-- dashboard_specification.md
+|   |-- dax_measures.md
+|   `-- export/              # CSVs gerados, fora do Git
+|-- app/
+|   |-- streamlit_app.py     # Pagina inicial do app
+|   |-- pages/               # Cinco paginas analiticas
+|   `-- utils/               # Carregamento e graficos reutilizaveis
+|-- sql/
+|   |-- staging/             # Limpeza e padronizacao
+|   |-- marts/               # Dimensoes e fatos
+|   `-- analysis/            # Queries analiticas
+|-- src/
+|   |-- ingestion/           # Carga e geracao da amostra
+|   |-- transformation/      # Execucao de modelos e exports
+|   `-- quality/             # Validacoes executaveis
+|-- tests/                   # Testes automatizados
+|-- requirements.txt
+`-- pyproject.toml
+```
 
 ## Modelo Dimensional
 
-Dimensoes:
+### Dimensoes
 
-- `marts.dim_customers`
-- `marts.dim_products`
-- `marts.dim_sellers`
-- `marts.dim_dates`
+- `marts.dim_customers`: cliente e localizacao.
+- `marts.dim_products`: produto, categoria e atributos fisicos.
+- `marts.dim_sellers`: seller e localizacao.
+- `marts.dim_dates`: calendario analitico.
 
-Fatos:
+### Fatos
 
-- `marts.fact_orders`
-- `marts.fact_order_items`
-- `marts.fact_payments`
-- `marts.fact_reviews`
-- `marts.fact_revenue_daily`
-- `marts.fact_customer_retention`
-- `marts.fact_seller_performance`
+- `marts.fact_orders`: uma linha por pedido.
+- `marts.fact_order_items`: uma linha por item do pedido.
+- `marts.fact_payments`: uma linha por evento de pagamento.
+- `marts.fact_reviews`: uma linha por review.
+- `marts.fact_revenue_daily`: agregado por data, UF e categoria.
+- `marts.fact_customer_retention`: uma linha por `customer_unique_id`.
+- `marts.fact_seller_performance`: uma linha por seller.
 
-## Principais Metricas
+Os grains sao documentados para evitar dupla contagem. Indicadores globais de
+pedidos usam `fact_orders`; analises por produto, categoria ou seller usam
+`fact_order_items`; retencao usa `customer_unique_id`.
 
-- GMV
-- Receita liquida
-- Ticket medio
-- Pedidos aprovados e cancelados
-- Margem bruta e margem percentual estimada
-- Clientes ativos
-- Frequencia de compra
-- Retencao por cliente
-- SLA e atraso de entrega
+## Metricas de Negocio
 
-## Como Executar
+As definicoes, formulas, fontes e cuidados de interpretacao estao documentados em
+[business_metrics.md](docs/metrics/business_metrics.md) e
+[dax_measures.md](powerbi/dax_measures.md).
+
+Principais metricas:
+
+- Gross Revenue;
+- Freight Value;
+- Total Payment Value;
+- Total Orders;
+- Delivered Orders;
+- Cancelled Orders e Cancellation Rate;
+- Average Order Value;
+- Late Delivery Rate;
+- Average Delivery Days;
+- Average Review Score;
+- Review Comment Rate;
+- Repeat Customers e Repeat Purchase Rate;
+- receita por periodo, UF, categoria, produto e seller;
+- mix de pagamentos e Average Installments.
+
+`Gross Revenue` representa a soma de `item_price`. Frete e valor pago permanecem
+separados porque representam conceitos diferentes.
+
+> Receita bruta nao representa margem. O dataset nao possui custo de produto, por
+> isso nenhuma medida de margem real foi criada.
+
+## Data Quality e Testes
+
+A suite em [test_data_quality.py](tests/test_data_quality.py) valida o banco DuckDB
+em modo somente leitura. A cobertura inclui:
+
+- nulidade e unicidade de identificadores;
+- integridade referencial entre entidades;
+- status de pedidos permitidos;
+- tipos e faixas de valores;
+- valores financeiros nao negativos;
+- review score entre 1 e 5;
+- unicidade no grain esperado dos marts;
+- existencia das dimensoes e fatos obrigatorios;
+- taxa de atraso por seller entre 0 e 1.
+
+O workflow de CI roda em `push` e `pull_request`, executando Ruff, Black, pipeline
+completo sobre a amostra Olist, exportacao para Power BI e pytest.
+
+## Power BI Dashboard
+
+O entregavel versionado e a especificacao para construcao do dashboard, acompanhada
+das medidas DAX e dos CSVs gerados pelo pipeline. O arquivo `.pbix` nao faz parte do
+repositorio.
+
+O relatorio foi planejado em cinco paginas:
+
+1. **Executive Overview**
+2. **Revenue & Products**
+3. **Delivery & Operations**
+4. **Customers & Retention**
+5. **Sellers & Reviews**
+
+A especificacao de objetivos, tabelas, KPIs, visuais, filtros e insights esta em
+[dashboard_specification.md](powerbi/dashboard_specification.md). As medidas DAX
+recomendadas estao em [dax_measures.md](powerbi/dax_measures.md).
+
+Campanhas de marketing nao fazem parte do dashboard principal porque o dataset nao
+possui dados de campanha, investimento ou atribuicao.
+
+## Streamlit App
+
+O repositorio inclui uma aplicacao Streamlit para apresentar os principais
+indicadores sem depender do Power BI Desktop. Ela usa exclusivamente os 11 CSVs
+gerados em `powerbi/export/` e organiza a navegacao nas mesmas cinco areas
+analiticas:
+
+1. Visao Executiva
+2. Receita e Produtos
+3. Entrega e Operacao
+4. Clientes e Retencao
+5. Vendedores e Avaliacoes
+
+Depois de executar o pipeline e exportar os marts, inicie a aplicacao:
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+Se o executavel `streamlit` nao estiver disponivel no `PATH`, use:
+
+```bash
+python -m streamlit run app/streamlit_app.py
+```
+
+Se os CSVs ainda nao existirem, o app informa o comando necessario:
+
+```bash
+python src/transformation/export_powerbi_tables.py
+```
+
+O Streamlit apresenta receita, pedidos, produtos, entregas, clientes, sellers e
+reviews. Nao inclui campanhas de marketing e nao calcula margem real, pois essas
+informacoes nao existem no dataset publico.
+
+Na camada visual, o app traduz categorias, status e segmentos para nomes amigaveis
+em portugues. IDs extensos de produtos e vendedores sao exibidos como rotulos
+sequenciais, enquanto o identificador original permanece disponivel no tooltip.
+Essas transformacoes sao apenas de apresentacao: os CSVs e o modelo analitico
+preservam os valores originais.
+
+## Como Rodar Localmente
+
+### Pre-requisitos
+
+- Python 3.11 ou superior.
+- Git.
+- Power BI Desktop, opcional, para construir o dashboard.
+
+### Instalacao
+
+```bash
+git clone https://github.com/samuelmaia-analytics/retail-revenue-intelligence-platform.git
+cd retail-revenue-intelligence-platform
+python -m venv .venv
+```
+
+Ative o ambiente virtual:
+
+```bash
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# Linux ou macOS
+source .venv/bin/activate
+```
 
 Instale as dependencias:
 
 ```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Para instalar tambem bibliotecas opcionais de notebooks, dbt e exploracao:
+Dependencias opcionais para notebooks e experimentacao:
 
 ```bash
 pip install -r requirements-optional.txt
 ```
 
-### Baixar o dataset Olist
+## Como Baixar o Dataset
 
-Baixe manualmente no Kaggle o **Brazilian E-Commerce Public Dataset by Olist**,
-extraia os arquivos e coloque os nove CSVs em:
+1. Acesse o Kaggle e procure por **Brazilian E-Commerce Public Dataset by Olist**.
+2. Baixe e extraia o dataset.
+3. Coloque os nove arquivos abaixo em `data/raw/Brazilian E-commerce/`:
 
 ```text
-data/raw/Brazilian E-commerce/
+olist_customers_dataset.csv
+olist_geolocation_dataset.csv
+olist_orders_dataset.csv
+olist_order_items_dataset.csv
+olist_order_payments_dataset.csv
+olist_order_reviews_dataset.csv
+olist_products_dataset.csv
+olist_sellers_dataset.csv
+product_category_name_translation.csv
 ```
 
-Arquivos esperados:
+Os CSVs completos permanecem fora do Git por causa do tamanho. O modo sample pode
+ser executado sem download adicional.
 
-- `olist_customers_dataset.csv`
-- `olist_geolocation_dataset.csv`
-- `olist_orders_dataset.csv`
-- `olist_order_items_dataset.csv`
-- `olist_order_payments_dataset.csv`
-- `olist_order_reviews_dataset.csv`
-- `olist_products_dataset.csv`
-- `olist_sellers_dataset.csv`
-- `product_category_name_translation.csv`
-
-Os CSVs completos nao sao versionados por causa do tamanho. O projeto inclui uma
-amostra Olist referencialmente consistente com aproximadamente 1.000 pedidos em
-`data/sample/olist/`.
+## Como Executar o Pipeline
 
 ### Modo full
 
-Com os nove CSVs completos em `data/raw/Brazilian E-commerce/`, execute:
+Usa os arquivos completos em `data/raw/Brazilian E-commerce/`:
 
 ```bash
 python src/ingestion/load_to_duckdb.py --mode full
 python src/transformation/run_staging.py
 python src/transformation/run_marts.py
 python src/transformation/export_powerbi_tables.py
-python src/quality/run_data_tests.py
 ```
 
 ### Modo sample
 
-Para executar sem baixar o dataset completo:
+Usa a amostra versionada em `data/sample/olist/`:
 
 ```bash
 python src/ingestion/load_to_duckdb.py --mode sample
 python src/transformation/run_staging.py
 python src/transformation/run_marts.py
 python src/transformation/export_powerbi_tables.py
-pytest
 ```
 
-O modo padrao e `auto`: usa o dataset full quando os nove arquivos existem e faz
-fallback para `data/sample/olist/` quando `data/raw/` nao esta disponivel.
+### Modo automatico
+
+O comando sem argumentos usa o dataset completo quando os nove arquivos estao
+disponiveis e faz fallback para a amostra:
 
 ```bash
 python src/ingestion/load_to_duckdb.py
 ```
 
-### Regenerar a amostra
-
-Com o dataset full disponivel, gere novamente uma amostra deterministica de 1.000
-pedidos e todas as entidades relacionadas:
+Para regenerar a amostra a partir do dataset completo:
 
 ```bash
 python src/ingestion/generate_olist_sample.py --orders 1000
 ```
 
-Para executar apenas a camada staging:
+## Como Rodar os Testes
+
+Execute primeiro ingestao, staging e marts. Depois:
 
 ```bash
-python src/transformation/run_staging.py
+python -m pytest
 ```
 
-Para executar apenas a camada marts:
+Validacoes adicionais:
 
 ```bash
-python src/transformation/run_marts.py
+python src/quality/run_data_tests.py
+python -m ruff check src tests app main.py
+python -m black --check src tests app main.py
 ```
 
-Esse comando requer que a ingestao e a camada staging ja tenham sido executadas.
+## Limitacoes Conhecidas
 
-Para executar os testes automatizados de qualidade de dados:
+- O dataset nao possui custo de produto. Portanto, margem real, lucro e
+  rentabilidade nao foram calculados.
+- O dataset nao possui campanhas, investimento em midia ou atribuicao. ROI de
+  marketing ficou fora do escopo principal.
+- O dataset e historico e publico; nao representa a operacao atual da Olist.
+- A janela observada nao representa o ciclo de vida completo dos clientes.
+- Reviews pertencem ao pedido e nao avaliam individualmente cada seller.
+- A taxa de atraso por seller associa o resultado do pedido aos sellers
+  participantes, sem isolar toda a responsabilidade logistica.
+- O pipeline e local e usa carga completa, sem processamento incremental.
+- A integracao com Power BI usa CSVs e nao possui atualizacao automatica por
+  gateway.
 
-```bash
-pytest
-```
+## Melhorias Futuras
 
-Os testes usam o banco `data/processed/retail.duckdb`, portanto o pipeline deve ser
-executado antes da suite.
+- Implementar carga incremental e controle de execucoes.
+- Adicionar observabilidade, logs estruturados e historico de qualidade.
+- Evoluir as transformacoes para dbt com lineage e testes declarativos.
+- Adicionar testes de contrato para queries analiticas e exports do Power BI.
+- Enriquecer cidades e UFs com fontes publicas geograficas e socioeconomicas.
+- Automatizar publicacao e atualizacao do dashboard.
+- Incorporar custos somente quando houver uma fonte confiavel e documentada.
 
-## Integracao Continua
+## Contato Profissional
 
-O workflow `.github/workflows/ci.yml` roda em `push` e `pull_request`. Ele instala
-as dependencias, executa Ruff e Black, constroi as camadas `raw`, `staging` e
-`marts`, exporta os CSVs para Power BI e executa pytest.
-
-No GitHub Actions, o pipeline executa explicitamente em modo sample e carrega os
-arquivos diretamente de `data/sample/olist/`, sem copiar dados para `data/raw/`.
-
-Banco local gerado:
-
-```text
-data/processed/retail.duckdb
-```
-
-Exports para Power BI:
-
-```text
-powerbi/export/
-```
-
-## Future Improvements
-
-- Enriquecer o dataset com dados simulados de campanhas de marketing.
-- Criar analise de ROI por canal.
-- Avaliar impacto de campanhas em recompra e receita.
+**Samuel Maia**<br>
+Data Analyst / Analytics Engineer<br>
+E-mail: `smaia2@gmail.com`
