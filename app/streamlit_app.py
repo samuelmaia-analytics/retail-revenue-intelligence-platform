@@ -33,9 +33,9 @@ def render_home() -> None:
 
     st.markdown("""
 Esta aplicação apresenta uma leitura executiva do **Brazilian E-Commerce Public
-Dataset by Olist**, um conjunto de dados público e histórico. O projeto é
-independente, foi desenvolvido para portfólio e não representa uma solução criada
-para a Olist.
+Dataset by Olist**, disponibilizado publicamente no **Kaggle**. O conjunto é
+histórico e anonimizado. O projeto é independente, foi desenvolvido para
+portfólio e não representa uma solução criada para a Olist.
 """)
 
     try:
@@ -59,7 +59,7 @@ abrir o Power BI.
         st.markdown("`CSV Olist -> raw -> staging -> marts -> CSV -> Streamlit / Power BI`")
     with source:
         st.markdown("### Fonte de dados")
-        st.markdown("Dataset público e anonimizado de e-commerce brasileiro.")
+        st.markdown("Brazilian E-Commerce Public Dataset by Olist, disponível no Kaggle.")
     with stack:
         st.markdown("### Stack")
         st.markdown("Python, SQL, DuckDB, pandas, Plotly, Streamlit, Power BI e pytest.")
