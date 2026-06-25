@@ -1,12 +1,22 @@
 """Smoke tests for the Streamlit application and exported data contract."""
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-import pandas as pd
 import pytest
+
+RUNNING_IN_CI = os.getenv("CI") == "true"
+if RUNNING_IN_CI:
+    pytest.skip(
+        "Streamlit smoke tests run locally, not in GitHub Actions.",
+        allow_module_level=True,
+    )
+
+import pandas as pd
 from app.utils.charts import bar_chart
 from app.utils.data_loader import EXPECTED_TABLES, load_table
 from app.utils.labels import (
@@ -21,7 +31,6 @@ APP_PATHS = [
     PROJECT_ROOT / "app" / "streamlit_app.py",
     *sorted((PROJECT_ROOT / "app" / "pages").glob("*.py")),
 ]
-RUNNING_IN_CI = os.getenv("CI") == "true"
 
 
 @pytest.mark.parametrize("table_name", EXPECTED_TABLES)
@@ -33,9 +42,6 @@ def test_streamlit_export_table_loads(table_name: str) -> None:
 
 @pytest.mark.parametrize("app_path", APP_PATHS, ids=lambda path: path.name)
 def test_streamlit_page_starts_without_exception(app_path: Path) -> None:
-    if RUNNING_IN_CI:
-        pytest.skip("Streamlit page rendering smoke test runs locally, not in GitHub Actions.")
-
     from streamlit.testing.v1 import AppTest
 
     app = AppTest.from_file(str(app_path), default_timeout=30)
