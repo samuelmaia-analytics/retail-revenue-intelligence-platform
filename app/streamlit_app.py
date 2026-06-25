@@ -2,9 +2,22 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import streamlit as st
 
-from app.utils.data_loader import MissingExportError, ensure_exports_exist, render_export_error
+PROJECT_ROOT = next(
+    parent for parent in Path(__file__).resolve().parents if (parent / "pyproject.toml").is_file()
+)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from app.utils.data_loader import (  # noqa: E402
+    MissingExportError,
+    ensure_exports_exist,
+    render_export_error,
+)
 
 
 def render_home() -> None:
