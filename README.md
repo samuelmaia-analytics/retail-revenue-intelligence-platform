@@ -1,5 +1,7 @@
 # Retail Revenue Intelligence Platform
 
+> **Projeto legado de portfólio.** Este repositório foi preservado como histórico técnico. O portfólio principal atual está concentrado em [Governed Analytics Platform](https://github.com/samuelmaia-analytics/Governed-Analytics-Platform), Central de Automação e Operações e [AWS Serverless Access Counter](https://github.com/samuelmaia-analytics/aws-serverless-access-counter).
+
 Projeto de portfólio em **Data Analytics, BI e Analytics Engineering** que transforma dados públicos de e-commerce em uma base analítica confiável para análise comercial, operacional e executiva.
 
 > Projeto independente de portfólio com dados públicos do Olist. Não representa a operação atual da empresa nem declara impacto comercial real.
